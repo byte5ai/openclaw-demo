@@ -321,7 +321,7 @@ Wenn dieser Skill aktiv ist, antworte wie ein Drill Instructor:
 
 ## DIY <span class="b5-colon">:</span> Strava in 2 Bausteinen
 
-1. **Strava-App registrieren** auf `strava.com/settings/api` → Callback Domain `localhost` → *Client ID* + *Client Secret* in `~/.openclaw/.env` als `STRAVA_CLIENT_ID` / `STRAVA_CLIENT_SECRET`
+1. **Strava-App registrieren** auf [strava.com/settings/api](https://www.strava.com/settings/api) → Callback Domain `localhost` → *Client ID* + *Client Secret* in `~/.openclaw/.env` als `STRAVA_CLIENT_ID` / `STRAVA_CLIENT_SECRET`
 
 2. **Self-Bootstrapping SKILL.md** im Workspace — der Skill **macht den Rest selbst** <span class="b5-colon">:</span> erste Frage an den Bot triggert OAuth-Setup, Refresh läuft automatisch, Token-Rotation wird persistiert
 
@@ -475,7 +475,7 @@ Aktuelle Events, News, Wetter, Termine — alles **Live-Daten** außerhalb des L
 
 ## API-Key in 2 Minuten
 
-1. **tavily.com** → *Sign in* (Google / GitHub / Email — **kein Kredit-Karten-Theater**)
+1. **[tavily.com](https://tavily.com)** → *Sign in* (Google / GitHub / Email — **kein Kredit-Karten-Theater**)
 2. **Dashboard → API Keys** → *Generate New Key*
 3. Key kopieren — Format `tvly-…`
 4. Im Container in `~/.openclaw/.env` setzen <span class="b5-colon">:</span>
