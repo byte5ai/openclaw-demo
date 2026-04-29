@@ -1,15 +1,16 @@
-# OpenClaw – Installations- und Demo-Leitfaden
+# OpenClaw — Installations- und Demo-Leitfaden
 
-> Lebendes Dokument für die Präsentation "Einführung in OpenClaw".
-> Wird iterativ während der Demo erweitert.
+> Lebendes Dokument zur Präsentation "Einführung in OpenClaw".
+> Es gibt drei dokumentierte Installationspfade — wähle den, der zu
+> deinem Anwendungsfall passt.
 
 ## 1. Was ist OpenClaw?
 
 OpenClaw ist ein **lokal laufender, persönlicher AI-Assistent**. Der Kern
 ("Gateway") ist die Steuerebene; die eigentliche Bedienung passiert über
-bestehende Messaging-Kanäle (Discord, Telegram, Slack, WhatsApp, iMessage,
-Matrix, …). Skills steuern, was der Agent tun darf, und liegen als
-`SKILL.md`-Verzeichnisse im Workspace.
+bestehende Messaging-Kanäle (WhatsApp, Telegram, Slack, iMessage,
+Signal, Matrix, …). Skills steuern, was der Agent tun darf, und liegen
+als `SKILL.md`-Verzeichnisse im Workspace.
 
 - Repo: <https://github.com/openclaw/openclaw>
 - Docs: <https://docs.openclaw.ai>
@@ -17,90 +18,71 @@ Matrix, …). Skills steuern, was der Agent tun darf, und liegen als
 
 ## 2. Voraussetzungen
 
-| Komponente   | Version                              |
-|--------------|--------------------------------------|
-| Docker       | 24+ mit Compose v2                   |
-| Node.js      | 24 (empfohlen) — im Container fixiert |
-| Paketmanager | `pnpm` (alternativ `npm` / `bun`)    |
-| OS auf Host  | macOS, Linux oder Windows + WSL2     |
+| Komponente   | Bare-Metal Ubuntu              | Docker (beide Varianten)     |
+|--------------|--------------------------------|------------------------------|
+| OS / Host    | Ubuntu 22.04 / 24.04 LTS       | Linux/macOS/Windows + WSL2   |
+| Node.js      | **24 (empfohlen)** oder 22.14+ | im Image fixiert auf 24      |
+| Sonstiges    | `git`, `build-essential`, `ffmpeg` | nur Docker + Compose v2  |
+| Account      | nicht-root User (systemd --user) | beliebig                   |
 
-Der Container ist eine **vollwertige Ubuntu-24.04-"Mini-VM"**: persistente
-Volumes halten `~/.openclaw` (Workspace, Skills, Sessions) und das geklonte
-Repo am Leben — `docker compose down` löscht **nichts**.
+LLM-Zugriff: ein API-Key bei einem unterstützten Provider (Anthropic,
+OpenAI, OpenRouter, …) **oder** ein lokaler Ollama-Server.
 
-## 3. Container starten
+## 3. Installations-Pfade — Übersicht
+
+| Pfad                              | Image-Größe | Use Case                                           | Datei-Setup                                  |
+|-----------------------------------|-------------|----------------------------------------------------|----------------------------------------------|
+| **A. Bare-Metal Ubuntu**          | —           | Produktion auf eigenem VPS (Daemon, systemd)       | keine                                         |
+| **B. Docker — VPS-Simulator**     | ~1 GB       | Lokale 1:1-Reproduktion eines VPS für Demo/Tests   | `Dockerfile`, `docker-compose.yml`           |
+| **C. Docker — Lean Local Stack**  | ~250 MB     | Zum Lokal-Ausprobieren, schlanker Stack            | `Dockerfile.local`, `docker-compose.local.yml` |
+
+A und B führen zu identischen Befehlen — B ist die "VM in der VM" für
+risikoarmes Üben. C ist der Mini-Quickstart für Neugierige, ohne
+Build-Toolchain im Image.
+
+## 4. Pfad A — Bare-Metal Ubuntu (VPS / Produktion)
+
+> Offizieller Weg laut OpenClaw-README. Der Onboarding-Wizard installiert
+> den Gateway als **systemd-User-Service**, sodass er Reboots übersteht
+> und nicht als root läuft.
+
+### 4.1 System-Pakete
 
 ```bash
-# 1. Env-Datei vorbereiten (Tokens werden später ergänzt)
-cp .env.example .env
+sudo apt update
+sudo apt install -y curl ca-certificates git build-essential \
+                    python3 ffmpeg
 
-# 2. Image bauen + Container starten
-docker compose up -d --build
+# Node 24 via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt install -y nodejs
 
-# 3. Interaktive Shell öffnen
-docker compose exec openclaw bash
-```
-
-Sanity-Check innerhalb des Containers:
-
-```bash
 node --version    # v24.x
-pnpm --version
-git --version
+npm --version
 ```
 
-### Persistenz im Überblick
-
-| Mount-Typ      | Host             | Container                     | Inhalt                                       |
-|----------------|------------------|-------------------------------|----------------------------------------------|
-| Named Volume   | `openclaw-home`  | `/root`                       | `~/.openclaw/openclaw.json`, History, Caches |
-| **Bind Mount** | `./openclaw`     | `/opt/openclaw`               | geklontes OpenClaw-Repo                      |
-| **Bind Mount** | `./workspace`    | `/root/.openclaw/workspace`   | Skills, `AGENTS.md`, `SOUL.md`               |
-
-Beide Bind Mounts liegen **direkt im Demo-Repo** und sind aus dem
-Host-Editor (VSCode, JetBrains, …) heraus editierbar — Änderungen am
-Source sind im Container sofort sichtbar (`pnpm gateway:watch` reloaded
-automatisch), neue/geänderte Skills greifen beim nächsten Session-Start
-des Agents. Im Onboarding muss der Workspace-Pfad auf dem Default
-`~/.openclaw/workspace` belassen werden, damit das Mapping greift.
-
-Backup des Named Volume z. B. via:
+### 4.2 OpenClaw global installieren
 
 ```bash
-docker run --rm -v openclaw-home:/data -v $PWD:/backup ubuntu \
-  tar czf /backup/openclaw-home.tgz -C /data .
+npm install -g openclaw@latest
+openclaw --version
 ```
 
-## 4. OpenClaw installieren (im Container)
-
-Empfohlener Pfad ist das geführte Onboarding:
+### 4.3 Onboarding + Daemon einrichten
 
 ```bash
-# Option A — direkt via npx (kein Repo-Clone nötig)
-npx openclaw@latest onboard
-
-# Option B — aus dem Quellbaum (wenn man am Code mitlesen möchte)
-# WICHTIG: Clone vom Host aus (Bind Mount), damit der Host-Editor
-# das Verzeichnis sieht. Im Repo-Root des Demo-Projekts ausführen:
-#   git clone https://github.com/openclaw/openclaw.git ./openclaw
-# Danach im Container weiterarbeiten:
-cd /opt/openclaw
-pnpm install
-pnpm openclaw setup
-pnpm ui:build
-pnpm gateway:watch        # Dev-Loop mit Auto-Reload
-# alternativ:
-pnpm openclaw onboard --install-daemon
+openclaw onboard --install-daemon
 ```
 
-Das Onboarding fragt der Reihe nach ab:
+Der Wizard fragt der Reihe nach ab:
 
-1. Pfad für Workspace (Default: `~/.openclaw/workspace`)
+1. Workspace-Pfad (Default: `~/.openclaw/workspace` — beibehalten)
 2. LLM-Provider + Modell (z. B. `anthropic/claude-opus-4-7`)
-3. Channels, die aktiviert werden sollen
-4. Skills, die installiert werden
+3. API-Key
+4. Channels, die jetzt aktiviert werden sollen
+5. Skills, die installiert werden
 
-Minimale Konfigurationsdatei `~/.openclaw/openclaw.json`:
+Konfiguration landet in `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -110,109 +92,195 @@ Minimale Konfigurationsdatei `~/.openclaw/openclaw.json`:
 }
 ```
 
-## 5. Discord-Integration
+### 4.4 Service-Status
 
-> Referenz: <https://docs.openclaw.ai/channels/discord>
+```bash
+systemctl --user status openclaw
+journalctl --user -u openclaw -f
+```
 
-1. **Bot anlegen** im
-   [Discord Developer Portal](https://discord.com/developers/applications)
-   → *New Application* → Tab *Bot* → *Reset Token* → Token kopieren.
-2. **Privileged Gateway Intents** aktivieren (mindestens *Message Content
-   Intent*).
-3. **Bot einladen**: Tab *OAuth2 → URL Generator*, Scopes `bot` +
-   `applications.commands`, Bot-Permissions mind. *Send Messages*,
-   *Read Message History*. Generierte URL im Browser öffnen, Server wählen.
-4. **Token im Container hinterlegen** (`.env` auf dem Host, dann
-   `docker compose up -d` damit es injiziert wird):
+Damit der User-Service auch ohne aktive SSH-Session weiterläuft,
+einmalig `linger` aktivieren:
 
-   ```env
-   DISCORD_BOT_TOKEN=MTE...deintoken...
-   ```
+```bash
+sudo loginctl enable-linger "$USER"
+```
 
-5. **Channel im Onboarding aktivieren**: `openclaw onboard` neu starten
-   oder direkt:
+### 4.5 Updates
+
+```bash
+openclaw update --channel stable      # stable | beta | dev
+# oder klassisch:
+npm install -g openclaw@latest
+systemctl --user restart openclaw
+```
+
+## 5. Pfad B — Docker als VPS-Simulator
+
+> Verhält sich exakt wie Pfad A, läuft aber in einem isolierten
+> Ubuntu-24.04-Container. Ideal für Demos, Reset-fähig zwischen
+> Versuchen, ohne den Host zu beeinflussen.
+
+### 5.1 Container starten
+
+```bash
+cp .env.example .env       # leerer Sentinel — Geheimnisse kommen via Onboarding
+docker compose up -d --build
+docker compose exec openclaw bash
+```
+
+Im Container die **identischen** Befehle wie auf Bare-Metal:
+
+```bash
+npm install -g openclaw@latest
+openclaw onboard
+# --install-daemon kann im Container nur mit systemd-aktiviertem
+# Setup verwendet werden. Im Demo-Container starten wir den
+# Gateway daher direkt im Vordergrund / via tmux.
+```
+
+### 5.2 Persistenz im Überblick
+
+| Mount-Typ      | Host             | Container                     | Inhalt                                       |
+|----------------|------------------|-------------------------------|----------------------------------------------|
+| Named Volume   | `openclaw-home`  | `/root`                       | `~/.openclaw/openclaw.json`, History, Caches |
+| Bind Mount     | `./openclaw`     | `/opt/openclaw`               | optional: geklontes OpenClaw-Repo            |
+| Bind Mount     | `./workspace`    | `/root/.openclaw/workspace`   | Skills, `AGENTS.md`, `SOUL.md`               |
+
+`./workspace` und `./openclaw` sind direkt aus dem Host-Editor
+editierbar. Im Onboarding den Default-Workspace-Pfad
+`~/.openclaw/workspace` beibehalten, damit das Mapping greift.
+
+Backup des Named Volume:
+
+```bash
+docker run --rm -v openclaw-home:/data -v $PWD:/backup ubuntu \
+  tar czf /backup/openclaw-home.tgz -C /data .
+```
+
+## 6. Pfad C — Docker Lean Local Stack
+
+> Schlanker Mini-Stack für Teilnehmer, die OpenClaw lokal ausprobieren
+> wollen, ohne Build-Toolchain im Image. OpenClaw ist global
+> vorinstalliert — direkt loslegen.
+
+### 6.1 Starten
+
+```bash
+cp .env.example .env       # leerer Sentinel
+docker compose -f docker-compose.local.yml up -d --build
+docker compose -f docker-compose.local.yml exec openclaw-local bash
+```
+
+Im Container nur noch das Onboarding starten:
+
+```bash
+openclaw onboard
+```
+
+### 6.2 Persistenz
+
+| Mount-Typ      | Host             | Container                     | Inhalt                                |
+|----------------|------------------|-------------------------------|---------------------------------------|
+| Named Volume   | `openclaw-local-home` | `/root`                  | `~/.openclaw/`, Caches, Sessions      |
+| Bind Mount     | `./workspace`    | `/root/.openclaw/workspace`   | Skills vom Host editierbar            |
+
+Bewusst kein Source-Bind-Mount und kein Build-Stack — der Lean-Pfad ist
+"npm-only", wie ein realer Endnutzer.
+
+### 6.3 Aufräumen
+
+```bash
+docker compose -f docker-compose.local.yml down -v
+```
+
+## 7. WhatsApp-Integration
+
+> Referenz: <https://docs.openclaw.ai/channels/whatsapp>
+
+Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
+
+> **WebUI-Trennung** (sonst sucht man sich tot): die Sidebar-Seite
+> **`/channels`** zeigt **nur aktive/konfigurierte** Channels (Runtime).
+> Die Konfiguration aller verfügbaren Channels lebt unter
+> **`/communications`** — dort wird WhatsApp aktiviert. Nach *Save*
+> erscheint er auch unter `/channels`.
+
+### Variante A — via WebUI (empfohlen)
+
+1. Sidebar → **Communications**, im Suchfeld `whatsapp` tippen.
+2. *Channels → WhatsApp*: **Enabled**-Toggle umlegen.
+3. **Save** drücken.
+4. Auf **Channels** wechseln → WhatsApp sollte mit Status *Configured*
+   gelistet sein. QR-Code für die Pairing erscheint dort (ggf. Reload).
+
+> **⚠️ Falle**: NICHT zusätzlich unter *Accounts → Add Entry* einen
+> leeren Custom-Slot anlegen. Beim Pairing erzeugt OpenClaw automatisch
+> den `default`-Account. Ein parallel angelegter Custom-Account
+> versucht dieselbe Nummer zu nutzen → Logout-Loop, Bot tot.
+> Wenn passiert:
+> `openclaw config unset channels.whatsapp.accounts.<custom-name>`
+> + Gateway-Restart.
+
+### Variante B — via CLI (Fallback)
+
+1. **Channel registrieren** — der Wizard zeigt einen QR-Code direkt
+   im Terminal:
 
    ```bash
-   openclaw channels add discord
+   openclaw channels add whatsapp
    ```
 
-   Dabei werden Bot-Token, erlaubte Server-IDs und Aktivierungsmodus
-   (`mention` vs. `always`) abgefragt.
-6. **Test**: Bot in einem Server erwähnen — `@OpenClaw status` sollte
-   eine Antwort des Gateways zurückspielen.
+2. **Auf dem Handy**: WhatsApp öffnen → *Einstellungen → Verknüpfte
+   Geräte → Gerät hinzufügen* → QR-Code scannen. WhatsApp meldet
+   "Verknüpft", OpenClaw loggt `Listening for personal WhatsApp
+   inbound messages`.
 
-## 6. Telegram-Integration
+3. **Test (Self-Chat)**: in WhatsApp den eigenen "Mitteilung an mich
+   selbst"-Chat öffnen, eine DM schreiben → der Bot antwortet sofort.
+   Self-Messages werden als `(self)` markiert und sind auto-trusted,
+   kein Pairing nötig.
 
-> Referenz: <https://docs.openclaw.ai/channels/telegram>
+> **Sicherheits-Default für Fremde**: `dmPolicy="pairing"` heißt, dass
+> eine **andere** Telefonnummer, die deine WhatsApp-Nummer anschreibt,
+> einen kurzen Pairing-Code als Antwort bekommt. Du musst sie freigeben:
+>
+> ```bash
+> openclaw pairing approve whatsapp <code>
+> ```
+>
+> Sender landet danach in der lokalen Allowlist
+> (`~/.openclaw/openclaw.json`). Für komplett offene DMs explizit auf
+> `dmPolicy="open"` + `allowFrom: ["*"]` umstellen — nicht empfohlen.
 
-1. **Bot bei @BotFather erstellen**:
+## 8. Sicherheits-Notizen
 
-   ```text
-   /newbot
-   Name:     OpenClaw Demo
-   Username: openclaw_demo_bot
-   ```
-
-   BotFather liefert den HTTP-API-Token.
-2. **Privacy-Mode** ggf. abschalten (`/setprivacy → Disable`), falls der
-   Bot in Gruppen alle Nachrichten lesen können soll.
-3. **Token in `.env` setzen**:
-
-   ```env
-   TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-   ```
-
-4. **Channel registrieren**:
-
-   ```bash
-   openclaw channels add telegram
-   ```
-
-   Allowlist: eigene Telegram-User-ID eintragen
-   (zu finden via `@userinfobot`), damit Fremde den Assistenten nicht
-   ansprechen können.
-5. **Test**: dem Bot eine DM schicken — der Assistent antwortet über das
-   Gateway.
-
-## 7. Sicherheits-Notizen für die Demo
-
-- Standardmäßig läuft die `main`-Session **mit Hostzugriff**. Für die Demo
-  ok, in Produktion: `agents.defaults.sandbox.mode: "non-main"` setzen,
-  damit fremde Channels in Docker-/SSH-Sandboxen laufen.
+- Standardmäßig läuft die `main`-Session **mit Hostzugriff**. Für
+  Produktion: `agents.defaults.sandbox.mode: "non-main"` setzen, damit
+  fremde Channels in Docker-/SSH-Sandboxen laufen.
 - Allowlist auf eigene User-IDs / Server-IDs einschränken — sonst kann
   jeder, der den Bot findet, Befehle senden.
-- Tokens **nie** ins Git-Repo committen; `.env` steht in `.gitignore`.
-
-## 8. Updates
-
-```bash
-docker compose exec openclaw bash -lc "openclaw update --channel stable"
-# oder bei Quellbaum-Installation:
-docker compose exec openclaw bash -lc "cd /opt/openclaw && git pull && pnpm install && pnpm build"
-```
-
-Container-Stack updaten:
-
-```bash
-docker compose pull
-docker compose up -d --build
-```
+- Tokens **nie** ins Git-Repo committen; `~/.openclaw/openclaw.json`
+  liegt außerhalb des Repos (im Docker-Setup im Named Volume
+  `openclaw-home`), `.env` ist in `.gitignore`.
+- Auf dem VPS: OpenClaw als **nicht-root User** laufen lassen
+  (`systemd --user`), nicht als `root`.
+- Reverse-Proxy / Tailscale für Remote-Zugriff einsetzen, kein direkter
+  Public-Listener auf dem Gateway-Port.
 
 ## 9. Troubleshooting (wird im Live-Test gefüllt)
 
 - [ ] Onboarding-Output dokumentieren
-- [ ] Tatsächlichen Gateway-Port eintragen und in `docker-compose.yml`
-      freischalten
-- [ ] Discord-Channel: Webhook- vs. Bot-Modus klarziehen
-- [ ] Telegram-Channel: Long-Polling vs. Webhook im Container
+- [ ] Tatsächlichen Gateway-Port eintragen und ggf. in
+      `docker-compose.yml` freischalten
+- [ ] WhatsApp-Pairing: QR-Code-Re-Scan-Verhalten nach Container-Reset
+- [ ] systemd-User-Service: Verhalten nach Reboot ohne `linger`
+- [ ] `--install-daemon` im Docker-Container: workaround dokumentieren
 
-## 10. Roadmap für die Präsentation heute Abend
+## 10. Weiterführende Links
 
-1. Live `docker compose up` zeigen
-2. `openclaw onboard` im Container durchklicken
-3. Discord-Bot in Test-Server einladen, Mention demonstrieren
-4. Telegram-Bot DM live beantworten lassen
-5. Eine Skill (`SKILL.md`) im Workspace zeigen — z. B. eine simple
-   "summarise URL"-Skill
-6. Persistenz beweisen: `docker compose down && up -d`, Session ist
-   weiterhin da
+- Getting Started: <https://docs.openclaw.ai/start/getting-started>
+- Onboarding-Wizard: <https://docs.openclaw.ai/start/wizard>
+- Konfiguration: <https://docs.openclaw.ai/gateway/configuration>
+- Sicherheits-/Sandbox-Modell: <https://docs.openclaw.ai/gateway/security>
+- Skills-Registry (ClawHub): <https://clawhub.ai>
