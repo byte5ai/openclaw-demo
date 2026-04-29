@@ -27,11 +27,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Marp engine deps
+        run: npm install --no-save @marp-team/marp-core
+
       - name: Build slides (HTML)
         run: |
           mkdir -p dist
           npx --yes @marp-team/marp-cli@latest slides/deck.md \
             --html --allow-local-files \
+            --engine ./slides/marp-engine.js \
             --theme-set slides/theme.css \
             --output dist/index.html
 
@@ -42,6 +46,7 @@ jobs:
         run: |
           npx --yes @marp-team/marp-cli@latest slides/deck.md \
             --pdf --allow-local-files \
+            --engine ./slides/marp-engine.js \
             --theme-set slides/theme.css \
             --output dist/deck.pdf
 
