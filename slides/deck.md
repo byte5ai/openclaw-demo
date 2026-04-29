@@ -52,7 +52,7 @@ Marcel Wege · byte5 GmbH
 
 ## Lokaler AI-Assistent. Auf deinen Channels.
 
-<span class="b5-colon">:</span> **Du willst einen persönlichen AI-Assistenten, der dich überall erreicht — ohne deine Daten an einen Cloud-Vendor abzugeben.**
+**Idee** <span class="b5-colon">:</span> ein persönlicher AI-Assistent, der dich überall erreicht — ohne deine Daten an einen Cloud-Vendor abzugeben.
 
 - **Gateway** als lokale Steuerebene auf deinem Server oder Laptop
 - Inbox über bestehende Kanäle <span class="b5-colon">:</span> WhatsApp, Telegram, Slack, iMessage, Signal, Matrix, …
@@ -174,7 +174,7 @@ Auf einem echten VPS landet der Gateway als **systemd-User-Service** und überst
 
 ## Browser statt Terminal
 
-Im Alltag willst du das **Web-UI**. Zwei Anpassungen, dann läuft's <span class="b5-colon">:</span>
+Im Alltag willst du das **WebUI**. Zwei Anpassungen, dann läuft's <span class="b5-colon">:</span>
 
 <span class="badge badge-docker">Docker</span> **Gateway-Bind auf `auto`** — Loopback + Bridge-Interface, kein Public-Listener <span class="b5-colon">:</span>
 
@@ -289,7 +289,7 @@ Nach dem ersten Start handelt OpenClaw seine Identität mit dir aus — **im Cha
 
 ## Ein Skill ist nur Markdown
 
-Skills leben als `SKILL.md` im Workspace und werden vom Host editiert — der Bind Mount gibt's umsonst, der Bot lädt sie heiß nach.
+Skills leben als `SKILL.md` im Workspace und werden vom Host editiert — der Bind Mount macht's möglich, der Bot zieht sie sich im nächsten Turn nach.
 
 ```bash
 mkdir -p workspace/skills/drill-sergeant-mode
@@ -317,7 +317,7 @@ description: Verschärft den Coach-Modus zum Drill-Instructor — kurze Sätze, 
 
 Wenn dieser Skill aktiv ist, antworte wie ein Drill Instructor:
 - Kurze, knappe Sätze
-- 1-2 Imperative pro Antwort
+- 1–2 Imperative pro Antwort
 - Gelegentlich GROSSBUCHSTABEN für Akzent
 - Keine Ausreden akzeptieren — sarkastisch, aber am Ende motivierend
 ```
@@ -345,7 +345,7 @@ Wenn dieser Skill aktiv ist, antworte wie ein Drill Instructor:
 
 2. **Self-Bootstrapping SKILL.md** im Workspace — der Skill **macht den Rest selbst** <span class="b5-colon">:</span> erste Frage an den Bot triggert OAuth-Setup, Refresh läuft automatisch, Token-Rotation wird persistiert
 
-> Pedagogisch sauber <span class="b5-colon">:</span> *Statische Secrets* in `.env`, *rotierende Tokens* in app-managed JSON. Der User berührt OAuth **genau einmal** im ganzen Lebenszyklus.
+> Pädagogisch sauber <span class="b5-colon">:</span> *Statische Secrets* in `.env`, *rotierende Tokens* in app-managed JSON. Der User berührt OAuth **genau einmal** im ganzen Lebenszyklus.
 
 ---
 
@@ -354,18 +354,18 @@ Wenn dieser Skill aktiv ist, antworte wie ein Drill Instructor:
 
 <div class="phase-bar"></div>
 
-## Verbindung in 30 Sekunden — **einmal**
+## Verbindung in 30 Sekunden — **ein einziges Mal**
 
 User <span class="b5-colon">:</span> *"Verbinde mich mit Strava."*
 
 1. **Bot** antwortet mit Authorize-Link <span class="b5-colon">:</span>
    *"Klick hier: `strava.com/oauth/authorize?client_id=…&scope=activity:read_all` — und schick mir den `code` aus der Redirect-URL zurück."*
 
-2. **User** klickt → *Authorize* → Strava redirected → User pasted `code=XYZ` zurück in den Chat
+2. **User** drückt *Authorize* → Strava leitet weiter → `code=XYZ` aus der URL zurück in den Chat
 
-3. **Bot** tauscht code gegen Tokens, schreibt `~/.openclaw/strava-tokens.json`, antwortet <span class="b5-colon">:</span> *"Verbunden! Was willst du wissen?"*
+3. **Bot** tauscht den Code gegen Tokens, schreibt `~/.openclaw/strava-tokens.json`, antwortet <span class="b5-colon">:</span> *"Verbunden! Was willst du wissen?"*
 
-> Danach **forever** automatisch <span class="b5-colon">:</span> Skill refresht den Access Token bei Ablauf von selbst und persistiert rotierte Refresh Tokens. Der User sieht OAuth nie wieder.
+> Danach **dauerhaft automatisch** <span class="b5-colon">:</span> der Skill refresht den Access Token bei Ablauf von selbst und persistiert rotierte Refresh Tokens. Der User sieht OAuth nie wieder.
 
 ---
 
@@ -411,7 +411,7 @@ Vor jedem Strava-Call:
     GET /api/v3/<endpoint> mit Authorization: Bearer <access_token>.
 ```
 
-> Bootstrap + Refresh + Fetch in einer Datei. User berührt OAuth **genau einmal** im Lebenszyklus.
+> Drei Phasen, ein Skill — der Rest läuft automatisch. Token-Rotation, Ablauf-Handling, neuer Bootstrap bei Revoke — alles im Markdown beschrieben.
 
 ---
 
@@ -424,7 +424,7 @@ Vor jedem Strava-Call:
 
 > *Wann hab ich zuletzt trainiert, und wie lief's?*
 
-**Was im UI sichtbar wird** (Tool-Calls live mitlesbar):
+**Live im UI sichtbar** — Tool-Calls Schritt für Schritt:
 
 1. Skill matched → curl gegen Strava API
 2. JSON zurück → Zusammenfassung mit Datum + Distanz + Pace
@@ -515,7 +515,7 @@ Aktuelle Events, News, Wetter, Termine — alles **Live-Daten** außerhalb des L
 
 <div class="phase-bar"></div>
 
-## Web Search in 8 Zeilen Skill
+## Web Search in einem 8-Zeilen-Skill
 
 ```yaml
 # ~/.openclaw/workspace/skills/websearch/SKILL.md
@@ -632,7 +632,7 @@ Bei Fragen nach Events / Rennen / Wettkämpfen — immer in dieser Reihenfolge:
 
 → **Eine Markdown-Regel** zwingt den Agent, `strava-coach` **vor** `websearch` zu callen.
 
-> **Der Impact:** Komposition ist nicht hardcoded — sie entsteht aus Kontext. Eine Zeile in `USER.md` ändert das Tool-Verhalten dauerhaft, ohne Skill-Code anzufassen. **Das** ist Markdown-as-Programming.
+> **Der Impact:** Komposition ist nicht hardcoded — sie entsteht aus Kontext. Wenige Zeilen in `USER.md` ändern das Tool-Verhalten dauerhaft, ohne Skill-Code anzufassen. **Das** ist Markdown-as-Programming.
 
 ---
 
@@ -661,7 +661,7 @@ openclaw skills install strava-training-coach   # Coach-Logik on top
 
 Was inkludiert ist <span class="b5-colon">:</span> OAuth-Setup-Wizard, Token-Refresh, Pagination, Rate-Limits. Skill landet in `~/.openclaw/workspace/skills/openclaw-strava/`.
 
-> **ClawHub** ist die offene Skill-Registry. Veröffentlichen = `git push` + PR. Same Modell wie npm oder Homebrew — nur für KI-Skills.
+> **ClawHub** ist die offene Skill-Registry. Veröffentlichen = `git push` + PR. Gleiches Modell wie npm oder Homebrew — nur für KI-Skills.
 
 ---
 
@@ -731,7 +731,7 @@ Channels sind austauschbar, Skills versionierbar, das LLM frei wählbar.
   { agents: { defaults: { sandbox: { mode: "non-main" } } } }
   ```
 
-- **Allowlist** auf eigene User- und Server-IDs — sonst spricht jede:r mit dem Bot
+- **Allowlist** auf eigene Telefonnummern, User- oder Server-IDs (je nach Channel) — sonst spricht jede:r mit dem Bot
 - Tokens **nie** ins Git-Repo — sie liegen in `~/.openclaw/openclaw.json` (Container-Volume)
 - OpenClaw als **nicht-root User** laufen lassen (`systemd --user`)
 - Remote-Zugriff über Reverse-Proxy oder Tailscale, nie direkt ins Internet
@@ -743,10 +743,10 @@ Channels sind austauschbar, Skills versionierbar, das LLM frei wählbar.
 ## Häufig gestellte Fragen
 
 - **„Geht das auch ohne Cloud-LLM?"** <span class="b5-colon">:</span> ja — Ollama lokal, Modell in `openclaw.json`.
-- **„Mehrere Channels gleichzeitig?"** <span class="b5-colon">:</span> ja — jede Quelle kann auf einen eigenen Agent geroutet werden.
-- **„Was kostet das?"** <span class="b5-colon">:</span> Software ist MIT — Kosten = nur LLM-Tokens.
+- **„Mehrere Channels gleichzeitig?"** <span class="b5-colon">:</span> ja — jeder Channel kann auf einen eigenen Agent geroutet werden.
+- **„Was kostet das?"** <span class="b5-colon">:</span> Software MIT-lizenziert — Kosten nur für LLM-Tokens.
 - **„Wie verwalten wir Skills im Team?"** <span class="b5-colon">:</span> als Git-Repo, ClawHub als Registry.
-- **„Kann byte5 das für uns aufsetzen?"** <span class="b5-colon">:</span> ja, gerne im Anschluss reden wir.
+- **„Kann byte5 das für uns aufsetzen?"** <span class="b5-colon">:</span> ja — sprich mich gerne im Anschluss an.
 
 ---
 
