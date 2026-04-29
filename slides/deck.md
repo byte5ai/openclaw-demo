@@ -270,7 +270,7 @@ Nach dem ersten Start handelt OpenClaw seine Identität mit dir aus — **im Cha
 - **`open`** — jeder darf (`allowFrom: ["*"]`)
 - **`disabled`** — alle DMs blockiert
 
-> **WebUI** <span class="b5-colon">:</span> Sidebar → **Communications** → *whatsapp* suchen → Sektion *Access* → **DM Policy** auf `allowlist` setzen, eigene Nummer in **Allow From** eintragen → *Save*. Bot ignoriert ab dann alle anderen Sender **stumm** — kein Pairing-Code mehr.
+> **WebUI** <span class="b5-colon">:</span> Sidebar → **Channels** → *WhatsApp* öffnen → Sektion *Access* → **DM Policy** auf `allowlist` setzen, eigene Nummer in **Allow From** eintragen → *Save*. Bot ignoriert ab dann alle anderen Sender **stumm** — kein Pairing-Code mehr.
 
 ---
 
