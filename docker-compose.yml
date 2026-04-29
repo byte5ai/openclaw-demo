@@ -1,3 +1,6 @@
+# VPS-Simulator-Compose. Spiegelt die Bare-Metal-Ubuntu-Erfahrung auf VPS.
+# Start: docker compose up -d --build
+# Lean-Variante fuer Teilnehmer: docker compose -f docker-compose.local.yml up -d --build
 services:
   openclaw:
     build:
@@ -18,10 +21,10 @@ services:
       # Workspace (Skills, AGENTS.md, SOUL.md) vom Host editierbar
       - ./workspace:/root/.openclaw/workspace
     ports:
-      # Gateway / Control UI — Port wird beim ersten `openclaw onboard`
-      # festgelegt. Defaults nach Onboarding hier eintragen, z. B.:
-      # - "127.0.0.1:8787:8787"
-      []
+      # OpenClaw Gateway + Control-UI (Dashboard).
+      # Default-Port ist 18789, geprueft via `openclaw config get gateway.port`.
+      # Nur an 127.0.0.1 binden — kein Public-Listener auf dem Host.
+      - "127.0.0.1:18789:18789"
     # Erlaubt das Verschachteln von Sandboxen (Docker-in-Docker) später,
     # falls OpenClaw `agents.defaults.sandbox.mode: non-main` aktiviert.
     # Für die reine Gateway-Demo nicht nötig:
