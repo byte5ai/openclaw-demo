@@ -7,3 +7,10 @@ dist/
 # Bind-Mount-Targets (separates Repo / Laufzeitdaten)
 /openclaw/
 /workspace/
+
+# Private Speaker-/Vorbereitungs-Notizen — nicht fuer Publikum,
+# nicht fuer ein eventuelles Public Repo
+/notes/
+
+# Slide-Build-Outputs (HTML/PDF/PPTX werden bei Bedarf neu erzeugt)
+/slides/dist/
