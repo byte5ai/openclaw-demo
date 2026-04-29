@@ -42,7 +42,11 @@
 section {
   width: 1280px;
   height: 720px;
-  padding: 64px 96px 80px;
+  /* Top-Padding 96px = konsistente Distanz zwischen Eyebrow-Header
+     (sitzt absolute bei top:36px, ~17px hoch → endet bei ~53px) und
+     erster Headline. Gilt fuer ALLE Content-Slides; title/divider
+     ueberschreiben separat. */
+  padding: 96px 96px 80px;
   font-family: var(--font-text);
   font-size: 24px;
   line-height: 1.5;
@@ -372,9 +376,6 @@ section.title .eyebrow { color: var(--b5-blau); opacity: 1; }
 /* ============================================================
    Phase-Slides — kleiner Phasen-Indikator oben
    ============================================================ */
-section.phase {
-  padding-top: 96px;
-}
 section.phase header {
   color: var(--b5-magenta);
 }
@@ -426,7 +427,6 @@ section.divider::after {
 /* ============================================================
    Resources / Closing
    ============================================================ */
-section.closing { padding-top: 96px; }
 section.closing h1 { color: var(--b5-blau-dunkel); }
 section.closing a { color: var(--b5-blau); border-bottom: 1px solid currentColor; text-decoration: none; }
 
@@ -434,7 +434,6 @@ section.closing a { color: var(--b5-blau); border-bottom: 1px solid currentColor
    Two-column helper — Marp Markdown unterstuetzt nicht direkt
    Spalten; wir nutzen einen ::columns CSS-Trick via class.
    ============================================================ */
-section.cols { padding-top: 80px; }
 section.cols .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;

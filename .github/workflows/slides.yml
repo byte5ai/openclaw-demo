@@ -32,12 +32,14 @@ jobs:
           mkdir -p dist
           npx --yes @marp-team/marp-cli@latest slides/deck.md \
             --html --allow-local-files \
+            --theme-set slides/theme.css \
             --output dist/index.html
 
       - name: Build slides (PDF)
         run: |
           npx --yes @marp-team/marp-cli@latest slides/deck.md \
             --pdf --allow-local-files \
+            --theme-set slides/theme.css \
             --output dist/deck.pdf
 
       - name: Write fallback landing

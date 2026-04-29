@@ -348,16 +348,11 @@ User <span class="b5-colon">:</span> *"Verbinde mich mit Strava."*
 ---
 name: strava-coach
 description: Self-bootstrapping Strava-Integration.
-metadata:
-  openclaw:
-    requires: { bins: ["curl", "jq"] }
+metadata: { openclaw: { requires: { bins: ["curl", "jq"] } } }
 ---
-
-Statische Secrets (Env):   STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET
-Tokens (app-managed JSON): ~/.openclaw/strava-tokens.json
 ```
 
-> Frontmatter deklariert `name`, `description`, benötigte Binaries. Darunter die zwei Storage-Locations. Die Logik kommt auf der nächsten Slide.
+**Storage** <span class="b5-colon">:</span> Secrets in Env (`STRAVA_CLIENT_ID/SECRET`), Tokens in `~/.openclaw/strava-tokens.json` — Logik auf der nächsten Slide.
 
 ---
 
@@ -394,18 +389,15 @@ Vor jedem Strava-Call:
 
 ## Erste Frage an den Bot
 
-Im UI-Chat oder per WhatsApp <span class="b5-colon">:</span>
-
 > *Wann hab ich zuletzt trainiert, und wie lief's?*
 
-Was der Bot tut (sichtbar im UI als Tool-Calls):
+**Was im UI sichtbar wird** (Tool-Calls live mitlesbar):
 
-1. Erkennt Strava-Skill als passend für die Frage
-2. Ruft den Skill auf → curl gegen Strava API
-3. Bekommt JSON zurück, fasst es zusammen
-4. Antwortet mit Datum + Distanz + Pace + (im Drill-Stil) Bewertung
+1. Skill matched → curl gegen Strava API
+2. JSON zurück → Zusammenfassung mit Datum + Distanz + Pace
+3. Im Drill-Stil bewertet, wie's gelaufen ist
 
-> **Magic-Moment** <span class="b5-colon">:</span> du hast die externe API gerade in zwei Slides durchgeplugt — von Auth bis Antwort.
+> **Magic-Moment** <span class="b5-colon">:</span> externe API in zwei Slides durchgeplugt — von Auth bis Antwort.
 
 ---
 
@@ -431,9 +423,9 @@ Sidebar → **Cron Jobs** → *+ New* <span class="b5-colon">:</span>
 - **Assistant task prompt** <span class="b5-colon">:</span> *"Schau auf Marcels Strava-Daten. Wenn trainiert: knapp loben. Wenn nicht: drillen."*
 - **Channel** <span class="b5-colon">:</span> WhatsApp · **Recipient** <span class="b5-colon">:</span> `+49…`
 
-→ *Add job* drücken, fertig. Alle Minute startet der Agent eine eigene Session, ruft die Strava-Skill, formuliert die Antwort und pusht via WhatsApp. **Kein User-Input nötig.**
+→ *Add job*. Agent triggert sich selbst, ruft den Strava-Skill, pusht via WhatsApp. **Kein User-Input.**
 
-> **Heute Abend** <span class="b5-colon">:</span> Demo-Tempo `1 Minute`, damit ihr live einen Push seht. In Produktion realistischer — `Every: 24h` für Daily-Check, oder Cron-Expression `0 7 * * *` für 7 Uhr morgens.
+> **Demo** <span class="b5-colon">:</span> `1 Minute` für Live-Effekt. Produktion <span class="b5-colon">:</span> `24h` oder Cron `0 7 * * *`.
 
 ---
 
@@ -509,7 +501,7 @@ curl -s -X POST https://api.tavily.com/search \
   -d '{"query":"<frage>","search_depth":"basic","include_answer":true,"max_results":5,"country":"germany"}'
 ```
 
-> Antwort enthält `answer` (kuratierte LLM-Zusammenfassung) + `results[]`. Kein eigenes Parsing nötig — der Agent kriegt's direkt nutzbar.
+> Antwort liefert `answer` (kuratiert) + `results[]`. Kein Parsing — direkt nutzbar.
 
 ---
 
