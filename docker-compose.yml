@@ -1,0 +1,31 @@
+services:
+  openclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openclaw-demo:latest
+    container_name: openclaw
+    hostname: openclaw
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - openclaw-home:/root
+      # Source/Repo + Agents direkt vom Host editierbar
+      - ./openclaw:/opt/openclaw
+      # Workspace (Skills, AGENTS.md, SOUL.md) vom Host editierbar
+      - ./workspace:/root/.openclaw/workspace
+    ports:
+      # Gateway / Control UI — Port wird beim ersten `openclaw onboard`
+      # festgelegt. Defaults nach Onboarding hier eintragen, z. B.:
+      # - "127.0.0.1:8787:8787"
+      []
+    # Erlaubt das Verschachteln von Sandboxen (Docker-in-Docker) später,
+    # falls OpenClaw `agents.defaults.sandbox.mode: non-main` aktiviert.
+    # Für die reine Gateway-Demo nicht nötig:
+    # privileged: true
+
+volumes:
+  openclaw-home:
