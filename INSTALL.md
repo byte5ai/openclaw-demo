@@ -200,13 +200,17 @@ docker compose -f docker-compose.local.yml down -v
 
 Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
 
-> **WebUI-Trennung** (sonst sucht man sich tot): die Sidebar-Seite
-> **`/channels`** zeigt **nur aktive/konfigurierte** Channels (Runtime).
-> Die Konfiguration aller verfügbaren Channels lebt unter
-> **`/communications`** — dort wird WhatsApp aktiviert. Nach *Save*
-> erscheint er auch unter `/channels`.
+> **WebUI-Trennung** (sonst sucht man sich tot):
+>
+> - **`/communications`** — Auswahl-Liste aller verfügbaren Channels.
+>   Hier wird WhatsApp **initial aktiviert** (Enabled-Toggle).
+> - **`/channels`** — Liste der **aktiven** Channels. Hier wird im
+>   Detail konfiguriert (Account, **DM Policy**, Allow From, Pairing,
+>   Routing). Erscheint erst nach erfolgreicher Aktivierung.
 
 ### Variante A — via WebUI (empfohlen)
+
+**Schritt 1 — Aktivierung (Communications):**
 
 1. Sidebar → **Communications**, im Suchfeld `whatsapp` tippen.
 2. *Channels → WhatsApp*: **Enabled**-Toggle umlegen.
@@ -252,6 +256,58 @@ Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
 > Sender landet danach in der lokalen Allowlist
 > (`~/.openclaw/openclaw.json`). Für komplett offene DMs explizit auf
 > `dmPolicy="open"` + `allowFrom: ["*"]` umstellen — nicht empfohlen.
+
+### Schritt 2 — DM-Policy auf eigene Nummer beschränken (Channels)
+
+Für Personal-Use ist `dmPolicy: "pairing"` unschön: jede fremde Nummer,
+die anschreibt, löst eine Bot-Antwort mit Pairing-Code aus. Lösung:
+auf `allowlist` umstellen mit der eigenen Nummer als einziger
+erlaubten Sender.
+
+**Vier Modi für `channels.whatsapp.dmPolicy`:**
+
+| Modus | Verhalten |
+| --- | --- |
+| `pairing` | Default — unbekannte Sender bekommen Pairing-Code |
+| `allowlist` | nur Nummern in `allowFrom` werden beantwortet *(Empfehlung)* |
+| `open` | jeder darf — `allowFrom: ["*"]` |
+| `disabled` | alle DMs blockiert |
+
+**Variante A — via WebUI:**
+
+1. Sidebar → **Channels** → *WhatsApp* öffnen.
+2. Sektion *Access* → **DM Policy** auf `allowlist` setzen.
+3. Eigene Nummer in **Allow From** eintragen (E.164-Format,
+   z. B. `+4915123456789`).
+4. **Save** drücken — Bot ignoriert ab sofort alle anderen Sender stumm.
+
+**Variante B — via CLI:**
+
+```bash
+openclaw config set channels.whatsapp.dmPolicy allowlist
+openclaw config set channels.whatsapp.allowFrom '["+4915123456789"]'
+openclaw config set channels.whatsapp.selfChatMode true
+docker compose restart openclaw   # oder: openclaw gateway restart
+```
+
+**Variante C — direkt in `~/.openclaw/openclaw.json`:**
+
+```jsonc
+{
+  "channels": {
+    "whatsapp": {
+      "dmPolicy": "allowlist",
+      "allowFrom": ["+4915123456789"],
+      "selfChatMode": true
+    }
+  }
+}
+```
+
+> **Verifikation**: nach Reload schreibt eine fremde Nummer → Bot bleibt
+> stumm (kein Pairing-Code mehr). Self-DM funktioniert weiter, da die
+> linked self number per Default in der Allowlist steht (siehe
+> [Doku](https://docs.openclaw.ai/channels/whatsapp#access-control-and-activation)).
 
 ## 8. Sicherheits-Notizen
 
