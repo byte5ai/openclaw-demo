@@ -291,6 +291,23 @@ Nach dem ersten Start handelt OpenClaw seine Identität mit dir aus — **im Cha
 
 ---
 
+<!-- _class: phase phase-3 -->
+<!-- _header: 'Phase 3 — Antwort kommt nicht als Wand' -->
+
+<div class="phase-bar"></div>
+
+## Block-Streaming <span class="b5-colon">:</span> Stück für Stück statt am Ende
+
+**Default** <span class="b5-colon">:</span> Bot wartet, bis das LLM komplett fertig ist, schickt dann **einen** großen Text-Block. Bei längeren Antworten gefühlt ewig.
+
+**Mit Block-Streaming** <span class="b5-colon">:</span> Bot schickt Antwort-Blöcke **sukzessive**, sobald sie das LLM produziert hat — erste Bubble nach 1–2 Sekunden, weitere folgen. Fühlt sich an wie ein echter Chat.
+
+> **WebUI** <span class="b5-colon">:</span> Sidebar → **Agents** → *Defaults* → **Block Streaming** auf `on` → optional **Human Delay** auf `natural` (800–2500 ms Pause zwischen Blöcken). Plus pro Channel <span class="b5-colon">:</span> **Channels → WhatsApp → Streaming → Block Streaming** auf `true`.
+
+> **Bonus** <span class="b5-colon">:</span> kombiniert mit der Pre-Reply-Reaction kriegt der User 👀 sofort, dann erste Bubble nach ~2 s, dann weitere. **Das** ist der Discord-Vibe, soweit WhatsApp es zulässt.
+
+---
+
 <!-- _class: divider -->
 <!-- _header: '' -->
 <!-- _footer: '' -->
