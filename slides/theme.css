@@ -74,7 +74,7 @@ section::after {
   height: 56px !important;
   padding: 0 !important;
   margin: 0 !important;
-  background: url('/assets/byte5-signet-cyan.png') no-repeat center / contain !important;
+  background: url('assets/byte5-signet-cyan.png') no-repeat center / contain !important;
   opacity: 0.95;
   pointer-events: none;
 }
@@ -346,7 +346,7 @@ section.title {
 section.title::after {
   display: block !important;
   content: '' !important;
-  background: url('/assets/byte5-logo-white.png') no-repeat center / contain !important;
+  background: url('assets/byte5-logo-white.png') no-repeat center / contain !important;
   width: 140px !important;
   height: 56px !important;
   opacity: 1;
@@ -415,7 +415,7 @@ section.divider h1::first-letter { color: var(--b5-magenta); }
 section.divider::after {
   display: block !important;
   content: '' !important;
-  background: url('/assets/byte5-logo-white.png') no-repeat center / contain !important;
+  background: url('assets/byte5-logo-white.png') no-repeat center / contain !important;
   width: 120px !important;
   height: 48px !important;
   top: 48px !important;

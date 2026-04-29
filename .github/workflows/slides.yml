@@ -35,6 +35,9 @@ jobs:
             --theme-set slides/theme.css \
             --output dist/index.html
 
+      - name: Copy slide assets
+        run: cp -R slides/assets dist/assets
+
       - name: Build slides (PDF)
         run: |
           npx --yes @marp-team/marp-cli@latest slides/deck.md \
