@@ -250,7 +250,27 @@ Nach dem ersten Start handelt OpenClaw seine Identität mit dir aus — **im Cha
 2. WhatsApp meldet **"Verknüpft"**, OpenClaw loggt `Listening for personal WhatsApp inbound messages`
 3. **Erste DM** an dich selbst (Self-Chat) <span class="b5-colon">:</span> *"Hallo Coach"* — Bot antwortet sofort
 
-> **Sicherheit für Fremde** <span class="b5-colon">:</span> Default `dmPolicy: "pairing"` heißt, dass eine **andere** Nummer, die dir schreibt, einen Pairing-Code bekommt und du sie per `openclaw pairing approve whatsapp <code>` freischalten musst. Eigene Nummer = automatisch trusted.
+> **Default** <span class="b5-colon">:</span> Eigene Nummer ist auto-trusted. Fremde Nummern bekommen einen Pairing-Code — siehe nächster Slide.
+
+---
+
+<!-- _class: phase phase-3 -->
+<!-- _header: 'Phase 3 — Wer darf den Bot ansprechen?' -->
+
+<div class="phase-bar"></div>
+
+## DM-Policy <span class="b5-colon">:</span> nur du als Sender
+
+**Default `pairing`** — jede fremde Nummer, die schreibt, bekommt vom Bot einen Pairing-Code. Für Personal-Use unschön <span class="b5-colon">:</span> jede versehentliche DM löst eine Bot-Antwort aus.
+
+**Vier Modi für `channels.whatsapp.dmPolicy`** <span class="b5-colon">:</span>
+
+- **`pairing`** — Default, unbekannte Sender bekommen Code
+- **`allowlist`** — nur `allowFrom`-Nummern werden beantwortet *(Empfehlung)*
+- **`open`** — jeder darf (`allowFrom: ["*"]`)
+- **`disabled`** — alle DMs blockiert
+
+> **WebUI** <span class="b5-colon">:</span> Sidebar → **Communications** → *whatsapp* suchen → Sektion *Access* → **DM Policy** auf `allowlist` setzen, eigene Nummer in **Allow From** eintragen → *Save*. Bot ignoriert ab dann alle anderen Sender **stumm** — kein Pairing-Code mehr.
 
 ---
 
