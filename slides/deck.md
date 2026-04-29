@@ -21,6 +21,19 @@ Marcel Wege · byte5 GmbH
 
 ---
 
+<!-- _header: 'Wer spricht da?' -->
+
+## Marcel Wege <span class="b5-colon">:</span> CTO @ byte5
+
+- **43, verheiratet, in Langen (Hessen)** — fast 9 Jahre byte5 in Frankfurt, Prokurist & CTO
+- **Tech-Stack** <span class="b5-colon">:</span> Laravel · Node.js · Umbraco · alles, was komplexe Projekte zum Laufen bringt
+- **Speaker** auf Tech-Events — u.a. Umbraco Festival Deutschland
+- **Privat** <span class="b5-colon">:</span> Formel-1-Fan, Rennrad 🚴 *(daher heute Strava in der Demo)*, Fotografie 📷
+
+> **Kontakt** <span class="b5-colon">:</span> [mwege@byte5.de](mailto:mwege@byte5.de) · [LinkedIn](https://www.linkedin.com/in/marcel-wege-24073362/)
+
+---
+
 <!-- _header: 'Über uns' -->
 
 ## byte5 in 30 Sekunden
@@ -552,6 +565,30 @@ Der Agent orchestriert **drei** Skills, ohne dass wir was Neues programmiert hab
 ```
 
 > `USER.md` ist **Living Context**. Versionierbar wie jeder andere Markdown-File. Editiere am Host, Bot greift es im nächsten Turn auf — exakt wie bei Skills.
+
+---
+
+<!-- _class: phase phase-8 -->
+<!-- _header: 'Phase 8 — TOOLS.md: dein Setup als Lookup' -->
+
+<div class="phase-bar"></div>
+
+## TOOLS.md <span class="b5-colon">:</span> dein lokales Setup als Notizblock
+
+```markdown
+## Strava
+- Bei lokalen Empfehlungen `VirtualRide` ignorieren (Zwift)
+
+## Frankfurter Outdoor-Strecken
+- Mainufer-Loop — 8 km, flach, asphaltiert. Tempo-Läufe.
+- Niddapark-Runde — 10 km, leicht hügelig, Trail/Asphalt.
+- Taunushänge — 25–60 km Rad, Anstiege Königstein/Falkenstein.
+
+## Tavily
+- Event-Anfragen: bevorzugt laufkalender.de, eventbrite.de
+```
+
+> **Skills sind shareable. Dein Setup ist deins.** TOOLS.md ist eine von sechs Bootstrap-Files im Workspace (mit `AGENTS.md`, `SOUL.md`, `USER.md`, `IDENTITY.md`, `HEARTBEAT.md`). Doku-Wortlaut <span class="b5-colon">:</span> *„Notes about your local tools and conventions. Does not control tool availability; it is only guidance."*
 
 ---
 

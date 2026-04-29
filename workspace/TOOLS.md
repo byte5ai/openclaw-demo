@@ -1,44 +1,37 @@
-# TOOLS.md - Local Notes
+# TOOLS.md — Marcels Setup
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+Lokale Lookup-Tabelle für Skills. Skills bleiben generisch (shareable),
+hier liegt das, was nur bei mir gilt — IDs, Nummern, Streckennamen,
+Provider-Eigenheiten.
 
-## What Goes Here
+## Communication
 
-Things like:
+### WhatsApp
+- Marcel: `+49 151 23456789` — für Cron-Pushes und Self-DM
+- Antworten knapp halten (Mobile-Lesbarkeit)
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+## Sport / Fitness
 
-## Examples
+### Strava
+- App-Name: `byte5-demo-bot`
+- Relevante Activity-Types: `Run`, `Ride`, `VirtualRide`
+- **Bei lokalen Empfehlungen `VirtualRide` immer ignorieren** (Zwift)
+- Profilbezeichnung: Marcels Outdoor-Aktivitäten zählen, virtuelle nicht
 
-```markdown
-### Cameras
+### Frankfurter Outdoor-Strecken
+- **Mainufer-Loop** — 8 km, flach, asphaltiert. Perfekt für Tempo-Läufe.
+- **Niddapark-Runde** — 10 km, leicht hügelig, Trail/Asphalt-Mix.
+- **Taunushänge** — 25–60 km Rad, Anstiege Königstein/Falkenstein.
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+## Web Search
 
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
-```
-
-## Why Separate?
-
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+### Tavily
+- Default `country: germany` für lokale Anfragen
+- Event-Anfragen: bevorzugt `laufkalender.de`, `eventbrite.de`, `runner.de`
+- News/Releases: `include_domains: ["github.com"]`
 
 ---
 
-Add whatever helps you do your job. This is your cheat sheet.
-
-## Related
-
-- [Agent workspace](/concepts/agent-workspace)
+Skills sind shared. Mein Setup ist meins. Wenn ein Skill *„hol mir was
+von Strava"* sagt, weiß er hier, dass `VirtualRide` rausfällt und
+Marcels Lieblings-Distanzen 5–10 km Laufen / <150 km Rad sind.
