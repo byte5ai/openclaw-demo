@@ -274,6 +274,23 @@ Nach dem ersten Start handelt OpenClaw seine Identität mit dir aus — **im Cha
 
 ---
 
+<!-- _class: phase phase-3 -->
+<!-- _header: 'Phase 3 — Bot zeigt, dass er denkt' -->
+
+<div class="phase-bar"></div>
+
+## Pre-Reply-Reaction <span class="b5-colon">:</span> kein Stille-Loch mehr
+
+**Problem** <span class="b5-colon">:</span> nach der Frage erst mal 5–15 Sekunden Stille, bis das LLM antwortet. Fühlt sich tot an.
+
+**Lösung** <span class="b5-colon">:</span> *Acknowledgment Reaction* — der Bot setzt **sofort** nach Empfang ein 👀-Emoji als WhatsApp-Reaction. User weiß <span class="b5-colon">:</span> *„gelesen, läuft."*
+
+> **WebUI** <span class="b5-colon">:</span> Sidebar → **Channels** → *WhatsApp* → Sektion *Reactions* → **Reaction Level** auf `ack` (oder `minimal`) → **Ack Reaction Emoji** wählen (z. B. `👀`, `🤔`, `🏋️`) → *Save*.
+
+> **Ehrliche Einordnung** <span class="b5-colon">:</span> kein echter „is typing…"-Indikator wie bei Discord — die WhatsApp-Web-API gibt das nicht zuverlässig her. Aber das Pre-Reply-Emoji erfüllt **denselben Zweck** <span class="b5-colon">:</span> sofortiges Feedback, dass der Bot lebt.
+
+---
+
 <!-- _class: divider -->
 <!-- _header: '' -->
 <!-- _footer: '' -->
