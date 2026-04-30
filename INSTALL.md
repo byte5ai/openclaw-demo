@@ -77,18 +77,20 @@ openclaw onboard --install-daemon
 Der Wizard fragt der Reihe nach ab:
 
 1. Workspace-Pfad (Default: `~/.openclaw/workspace` — beibehalten)
-2. LLM-Provider + Modell (z. B. `anthropic/claude-opus-4-7`)
-3. API-Key
+2. LLM-Provider + Modell — Demo-Setup: `openai-codex/gpt-5.5` mit
+   ChatGPT-OAuth-Flow. Alternativ: Anthropic, OpenAI direkt,
+   OpenRouter, oder lokal via Ollama
+3. API-Key bzw. OAuth-Autorisierung im Browser
 4. Channels, die jetzt aktiviert werden sollen
 5. Skills, die installiert werden
 
 Konfiguration landet in `~/.openclaw/openclaw.json`:
 
-```json5
+```json
 {
-  agent: {
-    model: "anthropic/claude-opus-4-7",
-  },
+  "agent": {
+    "model": "openai-codex/gpt-5.5"
+  }
 }
 ```
 
@@ -208,9 +210,9 @@ Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
 >   Detail konfiguriert (Account, **DM Policy**, Allow From, Pairing,
 >   Routing). Erscheint erst nach erfolgreicher Aktivierung.
 
-### Variante A — via WebUI (empfohlen)
+### Schritt 1 — Channel aktivieren
 
-**Schritt 1 — Aktivierung (Communications):**
+#### Variante A — via WebUI (empfohlen)
 
 1. Sidebar → **Communications**, im Suchfeld `whatsapp` tippen.
 2. *Channels → WhatsApp*: **Enabled**-Toggle umlegen.
@@ -226,7 +228,7 @@ Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
 > `openclaw config unset channels.whatsapp.accounts.<custom-name>`
 > + Gateway-Restart.
 
-### Variante B — via CLI (Fallback)
+#### Variante B — via CLI (Fallback)
 
 1. **Channel registrieren** — der Wizard zeigt einen QR-Code direkt
    im Terminal:
@@ -245,35 +247,23 @@ Gilt für alle drei Pfade — der Channel wird im Gateway registriert.
    Self-Messages werden als `(self)` markiert und sind auto-trusted,
    kein Pairing nötig.
 
-> **Sicherheits-Default für Fremde**: `dmPolicy="pairing"` heißt, dass
-> eine **andere** Telefonnummer, die deine WhatsApp-Nummer anschreibt,
-> einen kurzen Pairing-Code als Antwort bekommt. Du musst sie freigeben:
->
-> ```bash
-> openclaw pairing approve whatsapp <code>
-> ```
->
-> Sender landet danach in der lokalen Allowlist
-> (`~/.openclaw/openclaw.json`). Für komplett offene DMs explizit auf
-> `dmPolicy="open"` + `allowFrom: ["*"]` umstellen — nicht empfohlen.
+### Schritt 2 — DM-Policy auf eigene Nummer beschränken
 
-### Schritt 2 — DM-Policy auf eigene Nummer beschränken (Channels)
-
-Für Personal-Use ist `dmPolicy: "pairing"` unschön: jede fremde Nummer,
-die anschreibt, löst eine Bot-Antwort mit Pairing-Code aus. Lösung:
-auf `allowlist` umstellen mit der eigenen Nummer als einziger
-erlaubten Sender.
+Für Personal-Use ist der Default `dmPolicy: "pairing"` unschön: jede
+fremde Nummer, die anschreibt, löst eine Bot-Antwort mit Pairing-Code
+aus. Lösung: auf `allowlist` umstellen mit der eigenen Nummer als
+einziger erlaubten Sender.
 
 **Vier Modi für `channels.whatsapp.dmPolicy`:**
 
 | Modus | Verhalten |
 | --- | --- |
-| `pairing` | Default — unbekannte Sender bekommen Pairing-Code |
-| `allowlist` | nur Nummern in `allowFrom` werden beantwortet *(Empfehlung)* |
-| `open` | jeder darf — `allowFrom: ["*"]` |
+| `pairing` | Default — unbekannte Sender bekommen Pairing-Code (per `openclaw pairing approve whatsapp <code>` freigeben) |
+| `allowlist` | nur Nummern in `allowFrom` werden beantwortet *(Empfehlung für Personal-Use)* |
+| `open` | jeder darf — `allowFrom: ["*"]` (nicht empfohlen) |
 | `disabled` | alle DMs blockiert |
 
-**Variante A — via WebUI:**
+#### Variante A — via WebUI (empfohlen)
 
 1. Sidebar → **Channels** → *WhatsApp* öffnen.
 2. Sektion *Access* → **DM Policy** auf `allowlist` setzen.
@@ -281,7 +271,7 @@ erlaubten Sender.
    z. B. `+4915123456789`).
 4. **Save** drücken — Bot ignoriert ab sofort alle anderen Sender stumm.
 
-**Variante B — via CLI:**
+#### Variante B — via CLI
 
 ```bash
 openclaw config set channels.whatsapp.dmPolicy allowlist
@@ -290,9 +280,9 @@ openclaw config set channels.whatsapp.selfChatMode true
 docker compose restart openclaw   # oder: openclaw gateway restart
 ```
 
-**Variante C — direkt in `~/.openclaw/openclaw.json`:**
+#### Variante C — direkt in `~/.openclaw/openclaw.json`
 
-```jsonc
+```json
 {
   "channels": {
     "whatsapp": {
@@ -314,8 +304,9 @@ docker compose restart openclaw   # oder: openclaw gateway restart
 - Standardmäßig läuft die `main`-Session **mit Hostzugriff**. Für
   Produktion: `agents.defaults.sandbox.mode: "non-main"` setzen, damit
   fremde Channels in Docker-/SSH-Sandboxen laufen.
-- Allowlist auf eigene User-IDs / Server-IDs einschränken — sonst kann
-  jeder, der den Bot findet, Befehle senden.
+- Allowlist auf eigene Telefonnummern, User- oder Server-IDs (je nach
+  Channel) einschränken — sonst kann jeder, der den Bot findet, Befehle
+  senden.
 - Tokens **nie** ins Git-Repo committen; `~/.openclaw/openclaw.json`
   liegt außerhalb des Repos (im Docker-Setup im Named Volume
   `openclaw-home`), `.env` ist in `.gitignore`.
@@ -324,14 +315,61 @@ docker compose restart openclaw   # oder: openclaw gateway restart
 - Reverse-Proxy / Tailscale für Remote-Zugriff einsetzen, kein direkter
   Public-Listener auf dem Gateway-Port.
 
-## 9. Troubleshooting (wird im Live-Test gefüllt)
+## 9. Troubleshooting
 
-- [ ] Onboarding-Output dokumentieren
-- [ ] Tatsächlichen Gateway-Port eintragen und ggf. in
-      `docker-compose.yml` freischalten
-- [ ] WhatsApp-Pairing: QR-Code-Re-Scan-Verhalten nach Container-Reset
-- [ ] systemd-User-Service: Verhalten nach Reboot ohne `linger`
-- [ ] `--install-daemon` im Docker-Container: workaround dokumentieren
+Die häufigsten Stolpersteine aus Setup und Demo-Praxis:
+
+### Gateway / WebUI
+
+- **WebUI nicht erreichbar aus dem Container** — `gateway.bind` steht
+  vermutlich auf `lan` (deckt Loopback nicht ab). Auf `auto`
+  umstellen, dann sind Loopback und Bridge-Interface beide aktiv:
+  ```bash
+  openclaw config set gateway.bind auto
+  ```
+- **Default Gateway-Port** ist `18789`. Im Docker-Compose-Setup wird
+  er auf `127.0.0.1:18789` gemappt — nie als Public-Listener.
+- **Auth-Token für die WebUI-URL bauen** (Token wird aus
+  Sicherheitsgründen nicht von `dashboard` gedruckt):
+  ```bash
+  echo "http://localhost:18789/?token=$(jq -r .gateway.auth.token ~/.openclaw/openclaw.json)"
+  ```
+
+### WhatsApp
+
+- **Bot antwortet nach Container-Restart nicht mehr** — der QR muss
+  *nicht* neu gescannt werden. Der `default`-Account ist im Named
+  Volume persistent. Falls doch Re-Pairing nötig (z. B. nach
+  WhatsApp-Logout am Handy): einmal `openclaw channels add whatsapp`
+  und neuen QR scannen.
+- **Logout-Loop nach versehentlichem "Add Entry"** — siehe Falle in
+  Sektion 7. Custom-Account aus der Config entfernen + Restart.
+- **Fremde Nummern bekommen Pairing-Codes** — Default-Verhalten.
+  Schritt 2 in Sektion 7 (DM-Policy auf `allowlist`) macht den Bot
+  stumm gegenüber Unbekannten.
+- **Lange Stille zwischen Frage und Antwort** — `reactionLevel: ack`
+  in der Channel-Config aktiviert ein Pre-Reply-Emoji (👀 / 🤔)
+  als sofortiges Feedback. Block-Streaming
+  (`agents.defaults.blockStreamingDefault: on` +
+  `channels.whatsapp.blockStreaming: true`) liefert die Antwort in
+  mehreren Bubbles statt als einem Text-Block.
+
+### Docker
+
+- **`docker compose down -v`** löscht Named Volumes — also auch
+  `openclaw-home`. Komplett-Reset für Demos, aber Re-Onboarding nötig.
+  Reset ohne Volume-Verlust: `docker compose restart openclaw`.
+- **Config-Änderungen** in `~/.openclaw/openclaw.json` greifen erst
+  nach Gateway-Reload: `docker compose restart openclaw` (Compose-Setup)
+  oder `systemctl --user restart openclaw` (Bare-Metal).
+
+### Systemd (Bare-Metal)
+
+- **User-Service stoppt nach SSH-Logout** — `linger` einmalig
+  aktivieren: `sudo loginctl enable-linger "$USER"`.
+- **`--install-daemon` im Docker-Container** funktioniert nicht
+  zuverlässig (kein systemd im Image). Im Container den Gateway direkt
+  im Vordergrund starten oder über tmux/`docker compose`-Entrypoint.
 
 ## 10. Weiterführende Links
 
