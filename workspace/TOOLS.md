@@ -7,7 +7,7 @@ Provider-Eigenheiten.
 ## Communication
 
 ### WhatsApp
-- Marcel: `+49 151 23456789` — für Cron-Pushes und Self-DM
+- Marcel: `+49 151 23456789` — Platzhalter; echte Nummer nur lokal in der unversionierten Workspace-Kopie
 - Antworten knapp halten (Mobile-Lesbarkeit)
 
 ## Sport / Fitness
